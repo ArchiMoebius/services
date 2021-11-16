@@ -29,3 +29,11 @@ Nice contacts manager - better than google contacts...
 ## Photoprism
 
 Image and Video management - for life.
+
+## Pi-hole
+
+DNS sink-hole for unwanted requests
+
+## Uptime-Kuma
+
+Pretty status dashboard to keep tabs on network services and/or external websites

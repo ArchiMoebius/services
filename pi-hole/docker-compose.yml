@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "80:80/tcp"
+      - "443:443/tcp"
+    env_file:
+      - .env
+    volumes:
+      - '/data/pihole/etc.lighttpd.external.conf:/etc/lighttpd/external.conf'
+      - '/data/pihole/etc.lighttpd.conf-enabled.10-ssl.conf:/etc/lighttpd/conf-enabled/10-ssl.conf'
+      - '/data/pihole/crypto/:/crypto:ro'
+      - '/data/pihole/etc:/etc/pihole/'
+      - '/data/pihole/dnsmasq.d/:/etc/dnsmasq.d/'
+      - '/data/pihole/log/pihole.log:/var/log/pihole.log'
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - ServerIP=x.x.x.x
+      - VIRTUAL_HOST=domain.tld
+    restart: unless-stopped
