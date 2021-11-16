@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  app:
+    image: jupyter/datascience-notebook:latest
+    container_name: jupyter
+    ports:
+      - 127.0.0.1:6868:8888/tcp
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - GRANT_SUDO=yes
+      - RESTARTABLE=yes
+    volumes:
+      - "/data/dockerized/jupyter/notebooks:/home/jovyan/work"
+      - "/data/dockerized/jupyter/jupyter_server_config.py:/home/jovyan/.jupyter/jupyter_server_config.py"
+    restart: unless-stopped

@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  app:
+    image: mattermost/focalboard:latest
+    container_name: focalboard
+    ports:
+      - 127.0.0.1:7080:8000/tcp
+    environment:
+      - VIRTUAL_HOST=localhost
+      - VIRTUAL_PORT=8000
+      - VIRTUAL_PROTO=http
+    volumes:
+      - "/data/focalboard/config.json:/opt/focalboard/config.json"
+      - "/data/focalboard/focalboard.db:/data/focalboard.db"
+    restart: unless-stopped

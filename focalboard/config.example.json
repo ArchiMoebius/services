@@ -1,0 +1,19 @@
+{
+    "serverRoot": "http://localhost:8000",
+    "port": 8000,
+    "dbtype": "sqlite3",
+    "dbtableprefix": "",
+    "dbconfig": "/data/focalboard.db",
+    "useSSL": true,
+    "webpath": "./pack",
+    "filespath": "./files",
+    "telemetry": false,
+    "secret": "changeme",
+    "session_expire_time": 2592000,
+    "session_refresh_time": 18000,
+    "localOnly": false,
+    "enableLocalMode": true,
+    "authMode": "native",
+    "localModeSocketLocation": "/var/tmp/focalboard_local.socket",
+    "webhook_update": []
+}

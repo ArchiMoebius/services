@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  airsonic:
+    container_name: edge
+    image: airsonicadvanced/airsonic-advanced:edge-latest
+    user: root
+    ports:
+      - "127.0.0.1:8888:8888/tcp"
+    env_file:
+      - .env
+    volumes:
+      - '/data/airsonic/:/data/airsonic/'
+      - '/data/music:/data/music'
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
