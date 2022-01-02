@@ -1,0 +1,3 @@
+[submodule "desktop_applications/podbox"]
+	path = desktop_applications/podbox
+	url = git@github.com:DimaZirix/podbox.git
