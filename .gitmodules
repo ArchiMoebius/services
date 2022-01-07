@@ -1,3 +1,6 @@
 [submodule "desktop_applications/podbox"]
 	path = desktop_applications/podbox
 	url = git@github.com:DimaZirix/podbox.git
+[submodule "smallstep-ca"]
+	path = smallstep-ca
+	url = git@github.com:ArchiMoebius/smallstep-ca-demo.git
