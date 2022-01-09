@@ -1,0 +1,54 @@
+services:
+  database:
+    image: postgres:latest
+    environment:
+      - "POSTGRES_USER=hedgedoc"
+      - "POSTGRES_PASSWORD=password"
+      - "POSTGRES_DB=hedgedoc"
+    volumes:
+      - "/data/dockerized/hedgedoc/database:/var/lib/postgresql/data"
+    networks:
+      - internal
+  app:
+    image: quay.io/hedgedoc/hedgedoc:latest
+    environment:
+      - "CMD_DB_URL=postgres://hedgedoc:password@database:5432/hedgedoc"
+      - "CMD_DOMAIN=docs.tft"
+      - "CMD_URL_ADDPORT=false"
+      - "CMD_PROTOCOL_USESSL=true"
+      - "CMD_PORT=443"
+      - "CMD_CSP_ENABLE=true"
+      - "CMD_ALLOW_FREEURL=true"
+      - "CMD_EMAIL=true"
+      - "CMD_ALLOW_EMAIL_REGISTER=true"
+      - "CMD_ALLOW_ANONYMOUS_EDITS=true"
+      - "CMD_DEFAULT_PERMISSION=freely"
+      - "CMD_ALLOW_GRAVATAR=false"
+      - "CMD_ALLOW_ORIGIN=docs.tft"
+      - "NODE_ENV=production"
+    volumes:
+      - "/data/dockerized/hedgedoc/uploads:/hedgedoc/public/uploads"
+    depends_on:
+      - database
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.docs.rule=Host(`docs.tft`)"
+      - "traefik.http.routers.docs.entrypoints=websecure"
+      - "traefik.http.routers.docs.tls=true"
+      - "traefik.http.routers.docs.tls.certresolver=myresolver"
+      - "traefik.http.routers.docs.service=docs"
+      - "traefik.http.services.docs.loadbalancer.server.port=443"
+      - "traefik.http.middlewares.docs.headers.stsSeconds=15552000"
+      - "traefik.http.middlewares.docs.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.docs.headers.stsPreload=true"
+      - "traefik.http.middlewares.docs.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.docs.headers.contentSecurityPolicy=frame-ancestors 'self' *.tft"
+      - "traefik.http.middlewares.docs.headers.customFrameOptionsValue=SAMEORIGIN"
+    networks:
+      - internal
+
+networks:
+  internal:
+    external:
+      name: internal
