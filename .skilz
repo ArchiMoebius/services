@@ -1,0 +1,9 @@
+{
+  "branch": "development",
+  "description": "A collection of services leveraged in my homelab",
+  "title": "Services (homelab)",
+  "links": [{
+    "title": "View Source",
+    "href": "https://github.com/ArchiMoebius/services"
+}]
+}
