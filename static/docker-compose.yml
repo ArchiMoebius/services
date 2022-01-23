@@ -1,0 +1,35 @@
+version: "3.3"
+
+services:
+  staticfiles:
+    image: nginx:latest
+    volumes:
+      - /data/dockerized/static/data:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/files.conf:ro
+    container_name: static-files
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.staticfiles.rule=Host(`files.tft`)"
+      - "traefik.http.routers.staticfiles.entrypoints=websecure"
+      - "traefik.http.routers.staticfiles.tls=true"
+      - "traefik.http.routers.staticfiles.tls.certresolver=myresolver"
+      - "traefik.http.routers.staticfiles.service=staticfiles"
+      - "traefik.http.services.staticfiles.loadbalancer.server.port=80"
+      - "traefik.http.middlewares.staticfiles.headers.stsSeconds=15552000"
+      - "traefik.http.middlewares.staticfiles.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.staticfiles.headers.stsPreload=true"
+      - "traefik.http.middlewares.staticfiles.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.staticfiles.headers.contentSecurityPolicy=frame-ancestors 'self' *.tft"
+      - "traefik.http.middlewares.staticfiles.headers.customFrameOptionsValue=SAMEORIGIN"
+      - "traefik.http.middlewares.staticfiles.compress=true"
+    environment:
+      - NGINX_HOST=files.tft
+      - NGINX_PORT=80
+    networks:
+      - internal
+
+networks:
+  internal:
+    external:
+      name: internal
