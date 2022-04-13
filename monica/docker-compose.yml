@@ -5,27 +5,47 @@ services:
     image: monica:apache
     depends_on:
       - db
-    ports:
-      - 3074:80
     environment:
       - APP_TRUSTED_PROXIES=*
       - DB_HOST=db
-      - DB_USERNAME=changeme
-      - DB_PASSWORD=changeme
+      - DB_USERNAME=monica
+      - DB_PASSWORD=password
     volumes:
-      - data:/var/www/html/storage
+      - /data/dockerized/monica/data/core:/var/www/html/storage
     restart: always
-
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.monica.rule=Host(`contacts.tft`)"
+      - "traefik.http.routers.monica.entrypoints=websecure"
+      - "traefik.http.routers.monica.tls=true"
+      - "traefik.http.routers.monica.tls.certresolver=myresolver"
+      - "traefik.http.routers.monica.service=monica"
+      - "traefik.http.services.monica.loadbalancer.server.port=80"
+      - "traefik.http.middlewares.monica.headers.stsSeconds=15552000"
+      - "traefik.http.middlewares.monica.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.monica.headers.stsPreload=true"
+      - "traefik.http.middlewares.monica.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.monica.headers.contentSecurityPolicy=frame-ancestors 'self' *.tft"
+      - "traefik.http.middlewares.monica.headers.customFrameOptionsValue=SAMEORIGIN"
+    networks:
+      - internal
   db:
     image: mysql:5.7
     environment:
-      - MYSQL_ROOT_PASSWORD=changeme
-      - MYSQL_DATABASE=monic
-      - MYSQL_USER=changeme
-      - MYSQL_PASSWORD=changeme
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=monica
+      - MYSQL_USER=monica
+      - MYSQL_PASSWORD=password
     volumes:
-      - mysql:/var/lib/mysql
+      - /data/dockerized/monica/data/database:/var/lib/mysql
     restart: always
+    networks:
+      - internal
+
+networks:
+  internal:
+    external:
+      name: internal
 
 volumes:
   data:

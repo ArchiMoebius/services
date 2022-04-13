@@ -9,6 +9,7 @@ services:
     container_name: "traefik"
     command:
       - "--log.level=DEBUG"
+      - "--global.sendAnonymousUsage=false"
       - "--api.insecure=true"
       - "--api.dashboard=true"
       - "--providers.docker=true"
@@ -49,4 +50,3 @@ networks:
   internal:
     external:
       name: internal
-

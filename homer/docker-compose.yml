@@ -1,11 +1,24 @@
 version: "3"
 
 services:
-  app:
+  index-homer-tft:
     image: b4bz/homer
-    container_name: homer
-    ports:
-      - :127.0.0.1:8765:8080/tcp
+    container_name: index-homer-tft
     volumes:
       - "/data/homer/:/www/assets"
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homer.rule=Host(`index.tft`)"
+      - "traefik.http.routers.homer.entrypoints=websecure"
+      - "traefik.http.routers.homer.tls=true"
+      - "traefik.http.routers.homer.tls.certresolver=myresolver"
+      - "traefik.http.routers.homer.service=homer"
+      - "traefik.http.services.homer.loadbalancer.server.port=8080"
+    networks:
+      - internal
+
+networks:
+  internal:
+    external:
+      name: internal

@@ -12,10 +12,9 @@ services:
       - "/data/dockerized/photoprism/photodata/storage/:/go/src/github.com/photoprism/photoprism/storage"
       - "/data/dockerized/photoprism/photodata/orignials/:/go/src/github.com/photoprism/photoprism/storage/originals"
     shm_size: "2gb"
-    network_mode: "host" # if not host, use ports
     environment:
       TF_CPP_MIN_LOG_LEVEL: 0 # Show TensorFlow log messages for development
-      PHOTOPRISM_SITE_URL: "https://domain.tld"
+      PHOTOPRISM_SITE_URL: "https://media.tft"
       PHOTOPRISM_SITE_TITLE: "PhotoPrism"
       PHOTOPRISM_SITE_CAPTION: "Browse Your Life"
       PHOTOPRISM_SITE_DESCRIPTION: "Open-Source Personal Photo Management"
@@ -25,37 +24,53 @@ services:
       PHOTOPRISM_PUBLIC: "true"
       PHOTOPRISM_EXPERIMENTAL: "true"
       PHOTOPRISM_SERVER_MODE: "debug"
-      PHOTOPRISM_HTTP_HOST: "127.0.0.1"
+      PHOTOPRISM_HTTP_HOST: "0.0.0.0"
       PHOTOPRISM_HTTP_PORT: 7777
       PHOTOPRISM_DATABASE_DRIVER: "postgres"
       PHOTOPRISM_DATABASE_SERVER: "postgres:5432"
       PHOTOPRISM_DATABASE_NAME: "photoprism"
       PHOTOPRISM_DATABASE_USER: "photoprism"
-      PHOTOPRISM_DATABASE_PASSWORD: "changeme"
+      PHOTOPRISM_DATABASE_PASSWORD: "photoprism"
       PHOTOPRISM_TEST_DRIVER: "sqlite"
       PHOTOPRISM_TEST_DSN: ".test.db"
-      PHOTOPRISM_ADMIN_PASSWORD: "changeme" # The initial admin password (min 4 characters)
+      PHOTOPRISM_ADMIN_PASSWORD: "password" # The initial admin password (min 4 characters)
       PHOTOPRISM_ASSETS_PATH: "/go/src/github.com/photoprism/photoprism/assets"
       PHOTOPRISM_STORAGE_PATH: "/go/src/github.com/photoprism/photoprism/storage"
       PHOTOPRISM_ORIGINALS_PATH: "/go/src/github.com/photoprism/photoprism/storage/originals"
       PHOTOPRISM_IMPORT_PATH: "/go/src/github.com/photoprism/photoprism/storage/import"
-      PHOTOPRISM_DISABLE_BACKUPS: "false"     # Don't backup photo and album metadata to YAML files
-      PHOTOPRISM_DISABLE_WEBDAV: "false"      # Disable built-in WebDAV server
-      PHOTOPRISM_DISABLE_SETTINGS: "false"    # Users can not view or change settings
-      PHOTOPRISM_DISABLE_PLACES: "false"      # Disables reverse geocoding and maps
-      PHOTOPRISM_DISABLE_EXIFTOOL: "false"    # Don't create ExifTool JSON files for improved metadata extraction
-      PHOTOPRISM_DISABLE_TENSORFLOW: "false"  # Don't use TensorFlow for image classification
-      PHOTOPRISM_DETECT_NSFW: "false"         # Flag photos as private that MAY be offensive (requires TensorFlow)
-      PHOTOPRISM_UPLOAD_NSFW: "false"         # Allow uploads that may be offensive
-      PHOTOPRISM_DARKTABLE_PRESETS: "false"   # Use Darktable presets (disables concurrent raw image conversion)
-      PHOTOPRISM_THUMB_FILTER: "lanczos"      # Resample filter, best to worst: blackman, lanczos, cubic, linear
-      PHOTOPRISM_THUMB_UNCACHED: "true"       # Enable on-demand thumbnail rendering (high memory and cpu usage)
-      PHOTOPRISM_THUMB_SIZE: 2048             # Pre-rendered thumbnail size limit (default 2048, min 720, max 7680)
+      PHOTOPRISM_DISABLE_BACKUPS: "false" # Don't backup photo and album metadata to YAML files
+      PHOTOPRISM_DISABLE_WEBDAV: "false" # Disable built-in WebDAV server
+      PHOTOPRISM_DISABLE_SETTINGS: "false" # Users can not view or change settings
+      PHOTOPRISM_DISABLE_PLACES: "false" # Disables reverse geocoding and maps
+      PHOTOPRISM_DISABLE_EXIFTOOL: "false" # Don't create ExifTool JSON files for improved metadata extraction
+      PHOTOPRISM_DISABLE_TENSORFLOW: "false" # Don't use TensorFlow for image classification
+      PHOTOPRISM_DETECT_NSFW: "false" # Flag photos as private that MAY be offensive (requires TensorFlow)
+      PHOTOPRISM_UPLOAD_NSFW: "false" # Allow uploads that may be offensive
+      PHOTOPRISM_DARKTABLE_PRESETS: "false" # Use Darktable presets (disables concurrent raw image conversion)
+      PHOTOPRISM_THUMB_FILTER: "lanczos" # Resample filter, best to worst: blackman, lanczos, cubic, linear
+      PHOTOPRISM_THUMB_UNCACHED: "true" # Enable on-demand thumbnail rendering (high memory and cpu usage)
+      PHOTOPRISM_THUMB_SIZE: 2048 # Pre-rendered thumbnail size limit (default 2048, min 720, max 7680)
       # PHOTOPRISM_THUMB_SIZE: 4096           # Retina 4K, DCI 4K (requires more storage); 7680 for 8K Ultra HD
-      PHOTOPRISM_THUMB_SIZE_UNCACHED: 7680    # On-demand rendering size limit (default 7680, min 720, max 7680)
-      PHOTOPRISM_JPEG_SIZE: 7680              # Size limit for converted image files in pixels (720-30000)
-      PHOTOPRISM_JPEG_QUALITY: 92             # Set to 95 for high-quality thumbnails (25-100)
+      PHOTOPRISM_THUMB_SIZE_UNCACHED: 7680 # On-demand rendering size limit (default 7680, min 720, max 7680)
+      PHOTOPRISM_JPEG_SIZE: 7680 # Size limit for converted image files in pixels (720-30000)
+      PHOTOPRISM_JPEG_QUALITY: 92 # Set to 95 for high-quality thumbnails (25-100)
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.photoprism.rule=Host(`media.tft`)"
+      - "traefik.http.routers.photoprism.entrypoints=websecure"
+      - "traefik.http.routers.photoprism.tls=true"
+      - "traefik.http.routers.photoprism.tls.certresolver=myresolver"
+      - "traefik.http.routers.photoprism.service=photoprism"
+      - "traefik.http.services.photoprism.loadbalancer.server.port=7777"
+      - "traefik.http.middlewares.photoprism.headers.stsSeconds=15552000"
+      - "traefik.http.middlewares.photoprism.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.photoprism.headers.stsPreload=true"
+      - "traefik.http.middlewares.photoprism.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.photoprism.headers.contentSecurityPolicy=frame-ancestors 'self' *.tft"
+      - "traefik.http.middlewares.photoprism.headers.customFrameOptionsValue=SAMEORIGIN"
+    networks:
+      - internal
 
   postgres:
     image: postgres:12-alpine
@@ -64,9 +79,16 @@ services:
     environment:
       POSTGRES_DB: photoprism
       POSTGRES_USER: photoprism
-      POSTGRES_PASSWORD: changeme
+      POSTGRES_PASSWORD: photoprism
     restart: unless-stopped
+    networks:
+      - internal
 
 volumes:
   go-mod:
     driver: local
+
+networks:
+  internal:
+    external:
+      name: internal

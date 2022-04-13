@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ssh
+    volumes:
+      - "/data/dockerized/camera-tunnel/ssh/:/root/.ssh:ro"
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.camera.entrypoints=websecure"
+      - "traefik.tcp.routers.camera.rule=HostSNI(`web.camera.tft`)"
+      - "traefik.tcp.routers.camera.tls.passthrough=true"
+      - "traefik.tcp.routers.camera.service=camera"
+      - "traefik.tcp.services.camera.loadbalancer.server.port=1079"
+    networks:
+      - internal
+
+networks:
+  internal:
+    external:
+      name: internal

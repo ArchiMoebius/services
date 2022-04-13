@@ -10,9 +10,17 @@ A bunch of things which have been 'dockerized'.
 
 Network music collection managmenet and streaming.
 
+## Camera Stream
+
+ssh tunnel to IP camera bridge
+
 ## Focalboard
 
 Todo manager with nice interface.
+
+## Hedgedoc
+
+Think google docs for the LAN
 
 ## Homer
 
@@ -34,14 +42,18 @@ Image and Video management - for life.
 
 DNS sink-hole for unwanted requests
 
-## Uptime-Kuma
-
-Pretty status dashboard to keep tabs on network services and/or external websites
-
 ## Smallstep-CA
 
 An amazing set of utilities to manage PKI
 
+## Static
+
+nginx static host - quick file share.
+
 ## Traefik
 
 Think nginx, but better
+
+## Uptime-Kuma
+
+Pretty status dashboard to keep tabs on network services and/or external websites

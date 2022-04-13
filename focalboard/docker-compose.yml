@@ -4,13 +4,28 @@ services:
   app:
     image: mattermost/focalboard:latest
     container_name: focalboard
-    ports:
-      - 127.0.0.1:7080:8000/tcp
-    environment:
-      - VIRTUAL_HOST=localhost
-      - VIRTUAL_PORT=8000
-      - VIRTUAL_PROTO=http
     volumes:
       - "/data/focalboard/config.json:/opt/focalboard/config.json"
       - "/data/focalboard/focalboard.db:/data/focalboard.db"
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.focalboard.rule=Host(`todo.tft`)"
+      - "traefik.http.routers.focalboard.entrypoints=websecure"
+      - "traefik.http.routers.focalboard.tls=true"
+      - "traefik.http.routers.focalboard.tls.certresolver=myresolver"
+      - "traefik.http.routers.focalboard.service=focalboard"
+      - "traefik.http.services.focalboard.loadbalancer.server.port=8000"
+      - "traefik.http.middlewares.focalboard.headers.stsSeconds=15552000"
+      - "traefik.http.middlewares.focalboard.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.focalboard.headers.stsPreload=true"
+      - "traefik.http.middlewares.focalboard.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.focalboard.headers.contentSecurityPolicy=frame-ancestors 'self' *.tft"
+      - "traefik.http.middlewares.focalboard.headers.customFrameOptionsValue=SAMEORIGIN"
+    networks:
+      - internal
+
+networks:
+  internal:
+    external:
+      name: internal
