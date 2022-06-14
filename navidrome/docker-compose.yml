@@ -1,0 +1,41 @@
+version: "3"
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    user: 1000:1000 # should be owner of volumes
+    restart: unless-stopped
+    environment:
+      # Optional: put your config options customization here. Examples:
+      ND_SCANSCHEDULE: 1h
+      ND_LOGLEVEL: info  
+      ND_SESSIONTIMEOUT: 24h
+      ND_BASEURL: ""
+      ND_MUSICFOLDER: "/music"
+      ND_DATAFOLDER: "/data"
+    volumes:
+      - "/data/dockerized/navidrome/data:/data"
+      - "/data/music/:/music:ro"
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.navidrom.rule=Host(`music.tft`)"
+      - "traefik.http.routers.navidrom.entrypoints=websecure"
+      - "traefik.http.routers.navidrom.tls=true"
+      - "traefik.http.routers.navidrom.tls.certresolver=myresolver"
+      - "traefik.http.routers.navidrom.service=navidrom"
+      - "traefik.http.services.navidrom.loadbalancer.server.port=4533"
+      - "traefik.http.middlewares.navidrom.headers.stsSeconds=15552000"
+      - "traefik.http.middlewares.navidrom.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.navidrom.headers.stsPreload=true"
+      - "traefik.http.middlewares.navidrom.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.navidrom.headers.contentSecurityPolicy=frame-ancestors 'self' *.tft"
+      - "traefik.http.middlewares.navidrom.headers.customFrameOptionsValue=SAMEORIGIN"
+    networks:
+      - internal
+
+networks:
+  internal:
+    external:
+      name: internal
